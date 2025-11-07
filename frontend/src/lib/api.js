@@ -36,10 +36,10 @@ export const getMatch = (matchId) => api.get(`/matches/${matchId}`)
 
 // Classroom
 export const getClassroomByMatch = (matchId) => api.get(`/classrooms/match/${matchId}`)
-export const startSession = (classroomId) => api.post(`/classrooms/${classroomId}/start`)
-export const endSession = (classroomId) => api.post(`/classrooms/${classroomId}/end`)
-export const getChatHistory = (classroomId) => api.get(`/classrooms/${classroomId}/chat`)
-export const saveWhiteboard = (classroomId, data) => api.post(`/classrooms/${classroomId}/whiteboard`, { data })
+export const startSession = (matchId) => api.post(`/classrooms/match/${matchId}/start`)
+export const endSession = (matchId) => api.post(`/classrooms/match/${matchId}/end`)
+export const getChatHistory = (matchId) => api.get(`/classrooms/match/${matchId}/chat`)
+export const saveWhiteboard = (matchId, data) => api.post(`/classrooms/match/${matchId}/whiteboard`, { data })
 
 // Reviews
 export const submitReview = (data) => api.post('/reviews', data)

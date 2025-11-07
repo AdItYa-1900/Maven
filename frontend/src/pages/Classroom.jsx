@@ -6,11 +6,11 @@ import { useToast } from '../components/ui/Toast'
 import io from 'socket.io-client'
 import VideoCall from '../components/classroom/VideoCall'
 import Whiteboard from '../components/classroom/Whiteboard'
-import Chat from '../components/classroom/Chat'
+import ChatPopup from '../components/classroom/ChatPopup'
 import ReviewModal from '../components/classroom/ReviewModal'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
-import { Video, MessageSquare, Palette, X, Users } from 'lucide-react'
+import { Video, Palette, X } from 'lucide-react'
 import { getInitials } from '../lib/utils'
 
 export default function Classroom() {
@@ -22,7 +22,7 @@ export default function Classroom() {
   const [classroom, setClassroom] = useState(null)
   const [loading, setLoading] = useState(true)
   const [socket, setSocket] = useState(null)
-  const [activeTab, setActiveTab] = useState('video')
+  const [activeView, setActiveView] = useState('video')
   const [showReviewModal, setShowReviewModal] = useState(false)
   const [partner, setPartner] = useState(null)
 
@@ -105,42 +105,49 @@ export default function Classroom() {
   return (
     <div className="min-h-screen bg-background flex flex-col bg-gray-100">
       {/* Header */}
-      <header className="bg-white shadow-sm px-4 py-3 flex items-center justify-between">
+      <header className="bg-white shadow-sm px-6 py-4 flex items-center justify-between border-b">
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
               {getInitials(partner?.name || 'P')}
             </div>
             <div>
-              <h2 className="font-semibold">{partner?.name}</h2>
-              <p className="text-xs text-muted-foreground">Skill Exchange Session</p>
+              <h2 className="font-semibold text-lg">{partner?.name}</h2>
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                Live Session
+              </p>
             </div>
           </div>
         </div>
         
-        <div className="flex items-center gap-2">
-          <div className="flex bg-gray-100 rounded-lg p-1">
+        <div className="flex items-center gap-3">
+          <div className="flex bg-gray-100 rounded-xl p-1.5 shadow-inner">
             <button
-              onClick={() => setActiveTab('video')}
-              className={`px-4 py-2 rounded ${activeTab === 'video' ? 'bg-white shadow' : ''}`}
+              onClick={() => setActiveView('video')}
+              className={`px-5 py-2.5 rounded-lg transition-all flex items-center gap-2 font-medium ${
+                activeView === 'video' 
+                  ? 'bg-white shadow-md text-primary' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
             >
               <Video className="w-4 h-4" />
+              <span className="text-sm">Video</span>
             </button>
             <button
-              onClick={() => setActiveTab('whiteboard')}
-              className={`px-4 py-2 rounded ${activeTab === 'whiteboard' ? 'bg-white shadow' : ''}`}
+              onClick={() => setActiveView('whiteboard')}
+              className={`px-5 py-2.5 rounded-lg transition-all flex items-center gap-2 font-medium ${
+                activeView === 'whiteboard' 
+                  ? 'bg-white shadow-md text-primary' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
             >
               <Palette className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setActiveTab('chat')}
-              className={`px-4 py-2 rounded ${activeTab === 'chat' ? 'bg-white shadow' : ''}`}
-            >
-              <MessageSquare className="w-4 h-4" />
+              <span className="text-sm">Whiteboard</span>
             </button>
           </div>
           
-          <Button variant="destructive" onClick={handleEndSession}>
+          <Button variant="destructive" onClick={handleEndSession} className="shadow-lg">
             <X className="w-4 h-4 mr-2" />
             End Session
           </Button>
@@ -149,31 +156,44 @@ export default function Classroom() {
 
       {/* Main Content */}
       <div className="flex-1 overflow-hidden">
-        {activeTab === 'video' && (
+        {activeView === 'video' ? (
           <VideoCall
             socket={socket}
             classroomId={classroom.id}
             userId={user.id}
             partnerId={partner?.id}
+            compact={false}
           />
-        )}
-        
-        {activeTab === 'whiteboard' && (
-          <Whiteboard
-            socket={socket}
-            classroomId={classroom.id}
-          />
-        )}
-        
-        {activeTab === 'chat' && (
-          <Chat
-            socket={socket}
-            classroomId={classroom.id}
-            userId={user.id}
-            userName={user.name}
-          />
+        ) : (
+          // Whiteboard view with compact videos on the right
+          <div className="h-full flex gap-4 p-4">
+            <div className="flex-1 rounded-2xl overflow-hidden shadow-xl">
+              <Whiteboard
+                socket={socket}
+                classroomId={classroom.id}
+              />
+            </div>
+            <div className="w-72 flex-shrink-0">
+              <VideoCall
+                socket={socket}
+                classroomId={classroom.id}
+                userId={user.id}
+                partnerId={partner?.id}
+                compact={true}
+              />
+            </div>
+          </div>
         )}
       </div>
+
+      {/* Chat Popup - always available */}
+      <ChatPopup
+        socket={socket}
+        classroomId={classroom.id}
+        userId={user.id}
+        userName={user.name}
+        partner={partner}
+      />
 
       {/* Review Modal */}
       {showReviewModal && (
