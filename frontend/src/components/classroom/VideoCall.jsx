@@ -31,6 +31,20 @@ export default function VideoCall({ socket, classroomId, userId, partnerId, comp
     }
   }, [socket, localStream])
 
+  // Update local video when stream changes
+  useEffect(() => {
+    if (localVideoRef.current && localStream) {
+      localVideoRef.current.srcObject = localStream
+    }
+  }, [localStream])
+
+  // Update remote video when stream changes
+  useEffect(() => {
+    if (remoteVideoRef.current && remoteStream) {
+      remoteVideoRef.current.srcObject = remoteStream
+    }
+  }, [remoteStream])
+
   // Listen for user joined to initiate connection
   useEffect(() => {
     if (!socket) return
@@ -58,9 +72,6 @@ export default function VideoCall({ socket, classroomId, userId, partnerId, comp
       
       console.log('🎥 Media access granted')
       setLocalStream(stream)
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream
-      }
     } catch (error) {
       console.error('❌ Error accessing media devices:', error)
     }
@@ -87,9 +98,6 @@ export default function VideoCall({ socket, classroomId, userId, partnerId, comp
     pc.ontrack = (event) => {
       console.log('📡 Received remote track:', event.streams[0].id)
       setRemoteStream(event.streams[0])
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = event.streams[0]
-      }
     }
 
     // Handle ICE candidates

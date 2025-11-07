@@ -31,7 +31,7 @@ module.exports = (io) => {
     });
 
     // Chat messages
-    socket.on('send-message', async ({ classroomId, message, senderId }) => {
+    socket.on('send-message', async ({ classroomId, message, senderId, senderName, timestamp }) => {
       console.log(`💬 Message from ${senderId} in ${classroomId}: ${message}`);
       try {
         // Get current classroom
@@ -45,7 +45,7 @@ module.exports = (io) => {
           const newMessage = {
             sender_id: senderId,
             message: message,
-            timestamp: new Date().toISOString()
+            timestamp: timestamp || new Date().toISOString()
           };
           
           const updatedHistory = [...(classroom.chat_history || []), newMessage];
@@ -56,9 +56,9 @@ module.exports = (io) => {
             .update({ chat_history: updatedHistory })
             .eq('id', classroomId);
 
-          // Broadcast message to all in room
+          // Broadcast message to all in room (including sender for consistency)
           io.to(classroomId).emit('receive-message', newMessage);
-          console.log(`📢 Broadcasted message to room ${classroomId}`);
+          console.log(`📢 Broadcasted message to room ${classroomId}, room size: ${io.sockets.adapter.rooms.get(classroomId)?.size || 0}`);
         }
       } catch (error) {
         console.error('Error saving chat message:', error);

@@ -64,7 +64,7 @@ export default function ChatPopup({ socket, classroomId, userId, userName, partn
 
     console.log('💬 Sending message:', message)
     socket.emit('send-message', message)
-    setMessages(prev => [...prev, { ...message, sender_id: userId }])
+    // Don't add locally - backend will broadcast to all including sender
     setNewMessage('')
   }
 
