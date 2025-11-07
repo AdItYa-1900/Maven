@@ -26,10 +26,27 @@ export default function VideoCall({ socket, classroomId, userId, partnerId, comp
   }, [])
 
   useEffect(() => {
-    if (socket && localStream) {
+    if (socket && localStream && !peerConnection) {
       setupWebRTC()
     }
   }, [socket, localStream])
+
+  // Listen for user joined to initiate connection
+  useEffect(() => {
+    if (!socket) return
+
+    socket.on('user-joined', ({ userId: joinedUserId }) => {
+      console.log('User joined:', joinedUserId)
+      if (peerConnection && localStream) {
+        // Create offer for the new user
+        createOffer(peerConnection)
+      }
+    })
+
+    return () => {
+      socket.off('user-joined')
+    }
+  }, [socket, peerConnection, localStream])
 
   const initializeMedia = async () => {
     try {
@@ -73,11 +90,21 @@ export default function VideoCall({ socket, classroomId, userId, partnerId, comp
     // Handle ICE candidates
     pc.onicecandidate = (event) => {
       if (event.candidate) {
+        console.log('Sending ICE candidate')
         socket.emit('webrtc-ice-candidate', {
           classroomId,
           candidate: event.candidate,
           userId
         })
+      }
+    }
+
+    // Handle connection state changes
+    pc.onconnectionstatechange = () => {
+      console.log('Connection state:', pc.connectionState)
+      if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
+        console.log('Connection failed, attempting to reconnect...')
+        // Could implement reconnection logic here
       }
     }
 

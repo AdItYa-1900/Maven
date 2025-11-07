@@ -5,6 +5,7 @@ import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Profile from './pages/Profile'
+import UserProfile from './pages/UserProfile'
 import Dashboard from './pages/Dashboard'
 import Classroom from './pages/Classroom'
 import './App.css'
@@ -31,6 +32,11 @@ function App() {
             <Route path="/profile" element={
               <PrivateRoute>
                 <Profile />
+              </PrivateRoute>
+            } />
+            <Route path="/user/:userId" element={
+              <PrivateRoute>
+                <UserProfile />
               </PrivateRoute>
             } />
             <Route path="/dashboard" element={

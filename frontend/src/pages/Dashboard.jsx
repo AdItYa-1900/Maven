@@ -173,21 +173,20 @@ export default function Dashboard() {
                   <Card key={match.id} className="border-primary">
                     <CardContent className="pt-6">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xl">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center text-white font-bold text-lg">
                             {getInitials(partner.name)}
                           </div>
                           <div>
-                            <h3 className="text-xl font-semibold">{partner.name}</h3>
-                            <div className="flex items-center gap-4 mt-2">
-                              <div className="text-sm">
-                                <span className="text-muted-foreground">Teaches:</span>
-                                <span className="font-medium ml-1">{partner.offer_skill}</span>
-                              </div>
-                              <div className="text-sm">
-                                <span className="text-muted-foreground">Wants:</span>
-                                <span className="font-medium ml-1">{partner.want_skill}</span>
-                              </div>
+                            <button 
+                              onClick={() => navigate(`/user/${partner.id}`)}
+                              className="font-semibold text-lg hover:text-primary transition-colors text-left"
+                            >
+                              {partner.name}
+                            </button>
+                            <div className="text-sm">
+                              <span className="text-muted-foreground">Teaches:</span>
+                              <span className="font-medium ml-1">{partner.offer_skill}</span>
                             </div>
                           </div>
                         </div>
@@ -227,7 +226,12 @@ export default function Dashboard() {
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
-                              <h3 className="text-xl font-semibold">{partner.name}</h3>
+                              <button 
+                                onClick={() => navigate(`/user/${partner.id}`)}
+                                className="text-xl font-semibold hover:text-primary transition-colors text-left"
+                              >
+                                {partner.name}
+                              </button>
                               <div className="flex items-center gap-1">
                                 <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                                 <span className="text-sm">{partner.trust_score?.toFixed(1) || '0.0'}</span>

@@ -25,6 +25,7 @@ export default function Classroom() {
   const [activeView, setActiveView] = useState('video')
   const [showReviewModal, setShowReviewModal] = useState(false)
   const [partner, setPartner] = useState(null)
+  const [sessionStartTime, setSessionStartTime] = useState(null)
 
   useEffect(() => {
     loadClassroom()
@@ -62,6 +63,7 @@ export default function Classroom() {
 
       // Start session
       await startSession(matchId)
+      setSessionStartTime(Date.now())
     } catch (error) {
       toast({
         title: 'Error',
@@ -77,7 +79,19 @@ export default function Classroom() {
   const handleEndSession = async () => {
     try {
       await endSession(matchId)
-      setShowReviewModal(true)
+      
+      // Only show review modal if session lasted more than 2 minutes
+      const sessionDuration = sessionStartTime ? (Date.now() - sessionStartTime) / 1000 / 60 : 0
+      
+      if (sessionDuration >= 2) {
+        setShowReviewModal(true)
+      } else {
+        toast({
+          title: 'Session too short',
+          description: 'Session ended. No review needed for sessions under 2 minutes.',
+        })
+        navigate('/dashboard')
+      }
     } catch (error) {
       toast({
         title: 'Error',

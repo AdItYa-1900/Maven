@@ -43,22 +43,39 @@ router.post('/', authMiddleware, [
       .eq('from_user_id', req.userId)
       .eq('match_id', match_id);
 
+    let review;
     if (existingReviews && existingReviews.length > 0) {
-      return res.status(400).json({ error: 'Review already submitted for this match' });
+      // Update existing review
+      const { data: updatedReview, error: updateError } = await supabase
+        .from('reviews')
+        .update({
+          rating_teaching,
+          rating_exchange,
+          comment,
+          exchange_completed,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', existingReviews[0].id)
+        .select()
+        .single();
+
+      if (updateError) throw updateError;
+      review = updatedReview;
+    } else {
+      // Create new review
+      const { data: newReview, error: reviewError } = await createReview({
+        from_user_id: req.userId,
+        to_user_id,
+        match_id,
+        rating_teaching,
+        rating_exchange,
+        comment,
+        exchange_completed
+      });
+
+      if (reviewError) throw reviewError;
+      review = newReview;
     }
-
-    // Create review
-    const { data: review, error: reviewError } = await createReview({
-      from_user_id: req.userId,
-      to_user_id,
-      match_id,
-      rating_teaching,
-      rating_exchange,
-      comment,
-      exchange_completed
-    });
-
-    if (reviewError) throw reviewError;
 
     // Update recipient's trust score
     await updateUserTrustScore(to_user_id);
