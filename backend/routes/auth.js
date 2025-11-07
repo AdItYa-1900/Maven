@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
 const { body, validationResult } = require('express-validator');
+const { findUserByEmail, createUser, comparePassword } = require('../utils/supabaseHelpers');
 
 // Generate JWT Token
 const generateToken = (userId) => {
@@ -24,26 +24,28 @@ router.post('/register', [
     const { name, email, password } = req.body;
 
     // Check if user exists
-    const existingUser = await User.findOne({ email });
+    const { data: existingUser } = await findUserByEmail(email);
     if (existingUser) {
       return res.status(400).json({ error: 'Email already registered' });
     }
 
     // Create user
-    const user = new User({
+    const { data: user, error } = await createUser({
       name,
       email,
       password
     });
 
-    await user.save();
+    if (error) {
+      throw error;
+    }
 
-    const token = generateToken(user._id);
+    const token = generateToken(user.id);
 
     res.status(201).json({
       token,
       user: {
-        id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
         profile_completed: user.profile_completed
@@ -68,22 +70,26 @@ router.post('/login', [
 
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
-    if (!user) {
+    const { data: user, error } = await findUserByEmail(email);
+    if (error || !user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const isMatch = await user.comparePassword(password);
+    if (!user.password) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const isMatch = await comparePassword(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const token = generateToken(user._id);
+    const token = generateToken(user.id);
 
     res.json({
       token,
       user: {
-        id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
         offer_skill: user.offer_skill,
@@ -102,33 +108,38 @@ router.post('/login', [
 router.post('/google', async (req, res) => {
   try {
     const { googleId, email, name, avatar } = req.body;
+const supabase = require('../config/supabase');
+const { updateUser } = require('../utils/supabaseHelpers');
 
-    let user = await User.findOne({ googleId });
+    // Find by google_id
+    let { data: user } = await supabase.from('users').select('*').eq('google_id', googleId).single();
     
     if (!user) {
-      user = await User.findOne({ email });
+      // Find by email
+      const { data: emailUser } = await findUserByEmail(email);
       
-      if (user) {
-        user.googleId = googleId;
-        if (avatar) user.avatar = avatar;
-        await user.save();
+      if (emailUser) {
+        // Update existing user with google_id
+        const { data: updated } = await updateUser(emailUser.id, { google_id: googleId, avatar: avatar || emailUser.avatar });
+        user = updated;
       } else {
-        user = new User({
-          googleId,
+        // Create new user
+        const { data: newUser } = await createUser({
+          google_id: googleId,
           email,
           name,
           avatar: avatar || ''
         });
-        await user.save();
+        user = newUser;
       }
     }
 
-    const token = generateToken(user._id);
+    const token = generateToken(user.id);
 
     res.json({
       token,
       user: {
-        id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
         offer_skill: user.offer_skill,

@@ -1,4 +1,4 @@
-const Classroom = require('../models/Classroom');
+const supabase = require('../config/supabase');
 
 module.exports = (io) => {
   io.on('connection', (socket) => {
@@ -29,23 +29,30 @@ module.exports = (io) => {
     // Chat messages
     socket.on('send-message', async ({ classroomId, message, senderId }) => {
       try {
-        const classroom = await Classroom.findById(classroomId);
+        // Get current classroom
+        const { data: classroom, error } = await supabase
+          .from('classrooms')
+          .select('chat_history')
+          .eq('id', classroomId)
+          .single();
         
-        if (classroom) {
-          classroom.chat_history.push({
+        if (!error && classroom) {
+          const newMessage = {
             sender_id: senderId,
             message: message,
-            timestamp: new Date()
-          });
+            timestamp: new Date().toISOString()
+          };
           
-          await classroom.save();
+          const updatedHistory = [...(classroom.chat_history || []), newMessage];
+          
+          // Update chat history
+          await supabase
+            .from('classrooms')
+            .update({ chat_history: updatedHistory })
+            .eq('id', classroomId);
 
           // Broadcast message to all in room
-          io.to(classroomId).emit('receive-message', {
-            sender_id: senderId,
-            message: message,
-            timestamp: new Date()
-          });
+          io.to(classroomId).emit('receive-message', newMessage);
         }
       } catch (error) {
         console.error('Error saving chat message:', error);

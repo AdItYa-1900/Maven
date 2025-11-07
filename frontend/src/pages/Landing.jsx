@@ -26,11 +26,9 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary-600 rounded-xl flex items-center justify-center">
-                <BookOpen className="w-7 h-7 text-gunmetal" />
-              </div>
+              <img src="/maven-logo.png" alt="Maven Logo" className="w-12 h-12 rounded-lg" />
               <div>
-                <h1 className="text-2xl font-bold text-primary">
+                <h1 className="text-2xl font-heading font-extrabold text-primary">
                   Maven
                 </h1>
                 <p className="text-xs text-primary-200">Trade a Spark. Make Your Mark</p>
@@ -57,7 +55,7 @@ export default function Landing() {
             AI-Powered Peer-to-Peer Learning
           </div>
           
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+          <h1 className="text-5xl md:text-6xl font-heading font-black text-white mb-6 leading-tight tracking-tight">
             Trade a Spark,
             <br />
             <span className="text-primary">
@@ -201,7 +199,7 @@ export default function Landing() {
               <div className="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
                 1
               </div>
-              <h3 className="text-xl font-semibold mb-2 text-white">Create Profile</h3>
+              <h3 className="text-xl font-heading font-bold mb-2 text-white">Create Profile</h3>
               <p className="text-gray-600">
                 Tell us what you can teach and what you want to learn
               </p>
@@ -244,7 +242,7 @@ export default function Landing() {
       <section className="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
-            <h2 className="text-4xl font-bold text-white mb-6">
+            <h2 className="text-4xl font-heading font-extrabold text-white mb-6">
               Why Choose Maven?
             </h2>
             <div className="space-y-4">
@@ -322,7 +320,7 @@ export default function Landing() {
       {/* CTA Section */}
       <section className="bg-gradient-to-r from-gunmetal to-gunmetal-800 py-20">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-white mb-6">
+          <h2 className="text-4xl font-heading font-extrabold text-white mb-4">
             Ready to Trade Your Spark?
           </h2>
           <p className="text-xl text-primary-100 mb-8">
@@ -356,7 +354,7 @@ export default function Landing() {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <BookOpen className="w-6 h-6" />
+                <img src="/maven-logo.png" alt="Maven Logo" className="w-8 h-8 rounded" />
                 <span className="font-bold text-lg">Maven</span>
               </div>
               <p className="text-primary-200 text-sm">

@@ -1,23 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const Match = require('../models/Match');
-const User = require('../models/User');
-const Classroom = require('../models/Classroom');
 const authMiddleware = require('../middleware/auth');
 const { v4: uuidv4 } = require('uuid');
+const { findMatchesByUserId, findMatchById, updateMatch, createClassroom } = require('../utils/supabaseHelpers');
+const supabase = require('../config/supabase');
 
 // Get all matches for current user
 router.get('/my-matches', authMiddleware, async (req, res) => {
   try {
-    const matches = await Match.find({
-      $or: [
-        { user1_id: req.userId },
-        { user2_id: req.userId }
-      ]
-    })
-    .populate('user1_id', 'name email offer_skill want_skill trust_score avatar')
-    .populate('user2_id', 'name email offer_skill want_skill trust_score avatar')
-    .sort({ createdAt: -1 });
+    const { data: matches, error } = await findMatchesByUserId(req.userId);
+    
+    if (error) throw error;
 
     res.json(matches);
   } catch (error) {
@@ -29,50 +22,52 @@ router.get('/my-matches', authMiddleware, async (req, res) => {
 // Accept a match
 router.post('/:matchId/accept', authMiddleware, async (req, res) => {
   try {
-    const match = await Match.findById(req.params.matchId);
+    const { data: match, error: matchError } = await findMatchById(req.params.matchId);
 
-    if (!match) {
+    if (matchError || !match) {
       return res.status(404).json({ error: 'Match not found' });
     }
 
     // Check if user is part of the match
-    const isUser1 = match.user1_id.toString() === req.userId.toString();
-    const isUser2 = match.user2_id.toString() === req.userId.toString();
+    const isUser1 = match.user1_id === req.userId;
+    const isUser2 = match.user2_id === req.userId;
 
     if (!isUser1 && !isUser2) {
       return res.status(403).json({ error: 'Not authorized' });
     }
 
     // Update acceptance status
+    const updates = {};
     if (isUser1) {
-      match.user1_accepted = true;
+      updates.user1_accepted = true;
     } else {
-      match.user2_accepted = true;
+      updates.user2_accepted = true;
     }
 
     // If both accepted, create classroom
-    if (match.user1_accepted && match.user2_accepted) {
-      match.status = 'active';
+    const user1Accepted = isUser1 ? true : match.user1_accepted;
+    const user2Accepted = isUser2 ? true : match.user2_accepted;
+    
+    if (user1Accepted && user2Accepted) {
+      updates.status = 'active';
 
       // Create classroom
-      const classroom = new Classroom({
-        match_id: match._id,
+      await createClassroom({
+        match_id: match.id,
         video_call_room_id: uuidv4(),
         whiteboard_session_id: uuidv4()
       });
-
-      await classroom.save();
     }
 
-    await match.save();
+    const { data: updatedMatch, error: updateError } = await updateMatch(req.params.matchId, updates);
+    if (updateError) throw updateError;
 
-    const updatedMatch = await Match.findById(match._id)
-      .populate('user1_id', 'name email offer_skill want_skill trust_score avatar')
-      .populate('user2_id', 'name email offer_skill want_skill trust_score avatar');
+    // Fetch full match with user details
+    const { data: fullMatch } = await findMatchById(req.params.matchId);
 
     res.json({
       message: 'Match accepted',
-      match: updatedMatch
+      match: fullMatch
     });
   } catch (error) {
     console.error('Error accepting match:', error);
@@ -83,22 +78,21 @@ router.post('/:matchId/accept', authMiddleware, async (req, res) => {
 // Decline a match
 router.post('/:matchId/decline', authMiddleware, async (req, res) => {
   try {
-    const match = await Match.findById(req.params.matchId);
+    const { data: match, error: matchError } = await findMatchById(req.params.matchId);
 
-    if (!match) {
+    if (matchError || !match) {
       return res.status(404).json({ error: 'Match not found' });
     }
 
     // Check if user is part of the match
-    const isUser1 = match.user1_id.toString() === req.userId.toString();
-    const isUser2 = match.user2_id.toString() === req.userId.toString();
+    const isUser1 = match.user1_id === req.userId;
+    const isUser2 = match.user2_id === req.userId;
 
     if (!isUser1 && !isUser2) {
       return res.status(403).json({ error: 'Not authorized' });
     }
 
-    match.status = 'cancelled';
-    await match.save();
+    await updateMatch(req.params.matchId, { status: 'cancelled' });
 
     res.json({ message: 'Match declined' });
   } catch (error) {
@@ -110,11 +104,9 @@ router.post('/:matchId/decline', authMiddleware, async (req, res) => {
 // Get match details
 router.get('/:matchId', authMiddleware, async (req, res) => {
   try {
-    const match = await Match.findById(req.params.matchId)
-      .populate('user1_id', 'name email offer_skill want_skill trust_score avatar')
-      .populate('user2_id', 'name email offer_skill want_skill trust_score avatar');
+    const { data: match, error } = await findMatchById(req.params.matchId);
 
-    if (!match) {
+    if (error || !match) {
       return res.status(404).json({ error: 'Match not found' });
     }
 

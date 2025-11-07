@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const { findUserById } = require('../utils/supabaseHelpers');
 
 const authMiddleware = async (req, res, next) => {
   try {
@@ -10,14 +10,14 @@ const authMiddleware = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId);
+    const { data: user, error } = await findUserById(decoded.userId);
 
-    if (!user) {
+    if (error || !user) {
       return res.status(401).json({ error: 'User not found' });
     }
 
     req.user = user;
-    req.userId = user._id;
+    req.userId = user.id;
     next();
   } catch (error) {
     res.status(401).json({ error: 'Invalid token' });

@@ -1,14 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
 const authMiddleware = require('../middleware/auth');
 const { body, validationResult } = require('express-validator');
 const { runMatchingEngine } = require('../services/matchingEngine');
+const { findUserById, updateUser } = require('../utils/supabaseHelpers');
 
 // Get current user profile
 router.get('/me', authMiddleware, async (req, res) => {
   try {
-    const user = await User.findById(req.userId).select('-password');
+    const { data: user, error } = await findUserById(req.userId);
+    if (error) throw error;
+    
+    // Remove password from response
+    delete user.password;
     res.json(user);
   } catch (error) {
     res.status(500).json({ error: 'Error fetching user profile' });
@@ -30,27 +34,26 @@ router.put('/profile', authMiddleware, [
 
     const { offer_skill, offer_level, want_skill, want_level, timezone, name } = req.body;
 
-    const user = await User.findById(req.userId);
-    
-    if (offer_skill) user.offer_skill = offer_skill;
-    if (offer_level) user.offer_level = offer_level;
-    if (want_skill) user.want_skill = want_skill;
-    if (want_level) user.want_level = want_level;
-    if (timezone) user.timezone = timezone;
-    if (name) user.name = name;
+    const updates = {};
+    if (offer_skill) updates.offer_skill = offer_skill;
+    if (offer_level) updates.offer_level = offer_level;
+    if (want_skill) updates.want_skill = want_skill;
+    if (want_level) updates.want_level = want_level;
+    if (timezone) updates.timezone = timezone;
+    if (name) updates.name = name;
 
-    user.checkProfileComplete();
-    await user.save();
+    const { data: user, error } = await updateUser(req.userId, updates);
+    if (error) throw error;
 
     // Trigger matching engine when profile is updated
     if (user.profile_completed) {
-      await runMatchingEngine(user._id);
+      await runMatchingEngine(user.id);
     }
 
     res.json({
       message: 'Profile updated successfully',
       user: {
-        id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
         offer_skill: user.offer_skill,
@@ -71,10 +74,13 @@ router.put('/profile', authMiddleware, [
 // Get user by ID (for viewing match partner profile)
 router.get('/:userId', authMiddleware, async (req, res) => {
   try {
-    const user = await User.findById(req.params.userId).select('-password');
-    if (!user) {
+    const { data: user, error } = await findUserById(req.params.userId);
+    if (error || !user) {
       return res.status(404).json({ error: 'User not found' });
     }
+    
+    // Remove password from response
+    delete user.password;
     res.json(user);
   } catch (error) {
     res.status(500).json({ error: 'Error fetching user' });

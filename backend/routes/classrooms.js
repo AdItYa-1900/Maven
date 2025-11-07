@@ -1,37 +1,30 @@
 const express = require('express');
 const router = express.Router();
-const Classroom = require('../models/Classroom');
-const Match = require('../models/Match');
 const authMiddleware = require('../middleware/auth');
+const { findMatchById, findClassroomByMatchId, updateClassroom } = require('../utils/supabaseHelpers');
+const supabase = require('../config/supabase');
 
 // Get classroom for a match
 router.get('/match/:matchId', authMiddleware, async (req, res) => {
   try {
-    const match = await Match.findById(req.params.matchId);
+    const { data: match, error: matchError } = await findMatchById(req.params.matchId);
 
-    if (!match) {
+    if (matchError || !match) {
       return res.status(404).json({ error: 'Match not found' });
     }
 
     // Verify user is part of the match
     const isParticipant = 
-      match.user1_id.toString() === req.userId.toString() || 
-      match.user2_id.toString() === req.userId.toString();
+      match.user1_id === req.userId || 
+      match.user2_id === req.userId;
 
     if (!isParticipant) {
       return res.status(403).json({ error: 'Not authorized' });
     }
 
-    const classroom = await Classroom.findOne({ match_id: req.params.matchId })
-      .populate({
-        path: 'match_id',
-        populate: [
-          { path: 'user1_id', select: 'name email avatar' },
-          { path: 'user2_id', select: 'name email avatar' }
-        ]
-      });
+    const { data: classroom, error: classroomError } = await findClassroomByMatchId(req.params.matchId);
 
-    if (!classroom) {
+    if (classroomError || !classroom) {
       return res.status(404).json({ error: 'Classroom not found. Both users must accept the match first.' });
     }
 
@@ -43,72 +36,74 @@ router.get('/match/:matchId', authMiddleware, async (req, res) => {
 });
 
 // Start session
-router.post('/:classroomId/start', authMiddleware, async (req, res) => {
+router.post('/match/:matchId/start', authMiddleware, async (req, res) => {
   try {
-    const classroom = await Classroom.findById(req.params.classroomId);
+    const { data: classroom, error } = await findClassroomByMatchId(req.params.matchId);
 
-    if (!classroom) {
+    if (error || !classroom) {
       return res.status(404).json({ error: 'Classroom not found' });
     }
 
-    classroom.is_active = true;
+    const updates = { is_active: true };
     if (!classroom.session_started) {
-      classroom.session_started = new Date();
+      updates.session_started = new Date().toISOString();
     }
-    await classroom.save();
+    
+    const { data: updated } = await updateClassroom(req.params.matchId, updates);
 
-    res.json({ message: 'Session started', classroom });
+    res.json({ message: 'Session started', classroom: updated });
   } catch (error) {
     res.status(500).json({ error: 'Error starting session' });
   }
 });
 
 // End session
-router.post('/:classroomId/end', authMiddleware, async (req, res) => {
+router.post('/match/:matchId/end', authMiddleware, async (req, res) => {
   try {
-    const classroom = await Classroom.findById(req.params.classroomId);
+    const { data: classroom, error } = await findClassroomByMatchId(req.params.matchId);
 
-    if (!classroom) {
+    if (error || !classroom) {
       return res.status(404).json({ error: 'Classroom not found' });
     }
 
-    classroom.is_active = false;
-    classroom.session_ended = new Date();
-    await classroom.save();
+    const { data: updated } = await updateClassroom(req.params.matchId, {
+      is_active: false,
+      session_ended: new Date().toISOString()
+    });
 
-    res.json({ message: 'Session ended', classroom });
+    res.json({ message: 'Session ended', classroom: updated });
   } catch (error) {
     res.status(500).json({ error: 'Error ending session' });
   }
 });
 
 // Get chat history
-router.get('/:classroomId/chat', authMiddleware, async (req, res) => {
+router.get('/match/:matchId/chat', authMiddleware, async (req, res) => {
   try {
-    const classroom = await Classroom.findById(req.params.classroomId)
-      .populate('chat_history.sender_id', 'name avatar');
+    const { data: classroom, error } = await findClassroomByMatchId(req.params.matchId);
 
-    if (!classroom) {
+    if (error || !classroom) {
       return res.status(404).json({ error: 'Classroom not found' });
     }
 
-    res.json(classroom.chat_history);
+    res.json(classroom.chat_history || []);
   } catch (error) {
     res.status(500).json({ error: 'Error fetching chat history' });
   }
 });
 
 // Save whiteboard data
-router.post('/:classroomId/whiteboard', authMiddleware, async (req, res) => {
+router.post('/match/:matchId/whiteboard', authMiddleware, async (req, res) => {
   try {
-    const classroom = await Classroom.findById(req.params.classroomId);
+    const { data: classroom, error } = await findClassroomByMatchId(req.params.matchId);
 
-    if (!classroom) {
+    if (error || !classroom) {
       return res.status(404).json({ error: 'Classroom not found' });
     }
 
-    classroom.whiteboard_data = req.body.data;
-    await classroom.save();
+    await updateClassroom(req.params.matchId, {
+      whiteboard_data: req.body.data
+    });
 
     res.json({ message: 'Whiteboard saved' });
   } catch (error) {

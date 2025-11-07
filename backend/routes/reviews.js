@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const Review = require('../models/Review');
-const User = require('../models/User');
-const Match = require('../models/Match');
 const authMiddleware = require('../middleware/auth');
 const { body, validationResult } = require('express-validator');
+const { findMatchById, createReview, findReviewsByUserId, updateUserTrustScore, updateMatch } = require('../utils/supabaseHelpers');
+const supabase = require('../config/supabase');
 
 // Submit review for a match
 router.post('/', authMiddleware, [
@@ -23,32 +22,33 @@ router.post('/', authMiddleware, [
     const { match_id, to_user_id, rating_teaching, rating_exchange, comment, exchange_completed } = req.body;
 
     // Check if match exists
-    const match = await Match.findById(match_id);
-    if (!match) {
+    const { data: match, error: matchError } = await findMatchById(match_id);
+    if (matchError || !match) {
       return res.status(404).json({ error: 'Match not found' });
     }
 
     // Verify user is part of the match
     const isParticipant = 
-      match.user1_id.toString() === req.userId.toString() || 
-      match.user2_id.toString() === req.userId.toString();
+      match.user1_id === req.userId || 
+      match.user2_id === req.userId;
 
     if (!isParticipant) {
       return res.status(403).json({ error: 'Not authorized' });
     }
 
     // Check if review already exists
-    const existingReview = await Review.findOne({
-      from_user_id: req.userId,
-      match_id: match_id
-    });
+    const { data: existingReviews } = await supabase
+      .from('reviews')
+      .select('*')
+      .eq('from_user_id', req.userId)
+      .eq('match_id', match_id);
 
-    if (existingReview) {
+    if (existingReviews && existingReviews.length > 0) {
       return res.status(400).json({ error: 'Review already submitted for this match' });
     }
 
     // Create review
-    const review = new Review({
+    const { data: review, error: reviewError } = await createReview({
       from_user_id: req.userId,
       to_user_id,
       match_id,
@@ -58,29 +58,23 @@ router.post('/', authMiddleware, [
       exchange_completed
     });
 
-    await review.save();
+    if (reviewError) throw reviewError;
 
     // Update recipient's trust score
-    const allReviews = await Review.find({ to_user_id });
-    const avgTeaching = allReviews.reduce((sum, r) => sum + r.rating_teaching, 0) / allReviews.length;
-    const avgExchange = allReviews.reduce((sum, r) => sum + r.rating_exchange, 0) / allReviews.length;
-    const trustScore = (avgTeaching + avgExchange) / 2;
-
-    await User.findByIdAndUpdate(to_user_id, {
-      trust_score: parseFloat(trustScore.toFixed(2)),
-      total_reviews: allReviews.length
-    });
+    await updateUserTrustScore(to_user_id);
 
     // Check if both users submitted reviews and both marked as completed
-    const partnerReview = await Review.findOne({
-      from_user_id: to_user_id,
-      to_user_id: req.userId,
-      match_id: match_id
-    });
+    const { data: partnerReviews } = await supabase
+      .from('reviews')
+      .select('*')
+      .eq('from_user_id', to_user_id)
+      .eq('to_user_id', req.userId)
+      .eq('match_id', match_id);
+
+    const partnerReview = partnerReviews && partnerReviews[0];
 
     if (partnerReview && exchange_completed && partnerReview.exchange_completed) {
-      match.status = 'completed';
-      await match.save();
+      await updateMatch(match_id, { status: 'completed' });
     }
 
     res.status(201).json({
@@ -96,11 +90,10 @@ router.post('/', authMiddleware, [
 // Get reviews for a user
 router.get('/user/:userId', async (req, res) => {
   try {
-    const reviews = await Review.find({ to_user_id: req.params.userId })
-      .populate('from_user_id', 'name avatar')
-      .sort({ createdAt: -1 });
+    const { data: reviews, error } = await findReviewsByUserId(req.params.userId);
+    if (error) throw error;
 
-    res.json(reviews);
+    res.json(reviews || []);
   } catch (error) {
     res.status(500).json({ error: 'Error fetching reviews' });
   }
@@ -109,12 +102,13 @@ router.get('/user/:userId', async (req, res) => {
 // Check if user has submitted review for a match
 router.get('/check/:matchId', authMiddleware, async (req, res) => {
   try {
-    const review = await Review.findOne({
-      from_user_id: req.userId,
-      match_id: req.params.matchId
-    });
+    const { data: reviews } = await supabase
+      .from('reviews')
+      .select('*')
+      .eq('from_user_id', req.userId)
+      .eq('match_id', req.params.matchId);
 
-    res.json({ hasReviewed: !!review });
+    res.json({ hasReviewed: !!(reviews && reviews.length > 0) });
   } catch (error) {
     res.status(500).json({ error: 'Error checking review status' });
   }
