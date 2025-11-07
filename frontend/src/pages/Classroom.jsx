@@ -32,16 +32,43 @@ export default function Classroom() {
   }, [matchId])
 
   useEffect(() => {
-    if (classroom) {
-      const newSocket = io(import.meta.env.VITE_API_URL || 'http://localhost:5001')
-      setSocket(newSocket)
-
-      newSocket.emit('join-classroom', {
-        classroomId: classroom.id,
-        userId: user.id
+    if (classroom && user) {
+      console.log('🔌 Connecting to socket...')
+      const newSocket = io(import.meta.env.VITE_API_URL || 'http://localhost:5001', {
+        transports: ['websocket', 'polling']
+      })
+      
+      newSocket.on('connect', () => {
+        console.log('✅ Socket connected:', newSocket.id)
+        console.log('📍 Joining classroom:', classroom.id, 'User:', user.id)
+        
+        newSocket.emit('join-classroom', {
+          classroomId: classroom.id,
+          userId: user.id
+        })
       })
 
+      newSocket.on('user-joined', ({ userId }) => {
+        console.log('👋 User joined:', userId)
+        toast({
+          title: 'Partner joined!',
+          description: 'Your partner has joined the session'
+        })
+      })
+
+      newSocket.on('user-left', ({ userId }) => {
+        console.log('👋 User left:', userId)
+        toast({
+          title: 'Partner left',
+          description: 'Your partner has left the session',
+          variant: 'destructive'
+        })
+      })
+
+      setSocket(newSocket)
+
       return () => {
+        console.log('🔌 Disconnecting socket...')
         newSocket.emit('leave-classroom', {
           classroomId: classroom.id,
           userId: user.id
@@ -49,7 +76,7 @@ export default function Classroom() {
         newSocket.disconnect()
       }
     }
-  }, [classroom])
+  }, [classroom, user])
 
   const loadClassroom = async () => {
     try {

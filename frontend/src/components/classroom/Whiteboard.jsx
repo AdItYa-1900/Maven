@@ -33,13 +33,20 @@ export default function Whiteboard({ socket, classroomId }) {
   }, [])
 
   useEffect(() => {
-    if (!socket) return
+    if (!socket) {
+      console.log('🎨 Whiteboard: No socket yet')
+      return
+    }
+
+    console.log('🎨 Whiteboard: Setting up draw listeners')
 
     socket.on('whiteboard-draw', (drawData) => {
+      console.log('🎨 Received draw:', drawData)
       drawLine(drawData)
     })
 
     socket.on('whiteboard-clear', () => {
+      console.log('🎨 Received clear command')
       clearCanvas()
     })
 
@@ -93,10 +100,13 @@ export default function Whiteboard({ socket, classroomId }) {
     lastPosRef.current = pos
 
     // Emit to other users
-    socket?.emit('whiteboard-draw', {
-      classroomId,
-      drawData
-    })
+    if (socket) {
+      console.log('🎨 Sending draw:', drawData)
+      socket.emit('whiteboard-draw', {
+        classroomId,
+        drawData
+      })
+    }
   }
 
   const stopDrawing = (e) => {
@@ -128,7 +138,10 @@ export default function Whiteboard({ socket, classroomId }) {
 
   const handleClear = () => {
     clearCanvas()
-    socket?.emit('whiteboard-clear', { classroomId })
+    if (socket) {
+      console.log('🎨 Sending clear command')
+      socket.emit('whiteboard-clear', { classroomId })
+    }
   }
 
   const colors = [

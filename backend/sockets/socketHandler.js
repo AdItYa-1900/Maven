@@ -7,18 +7,22 @@ module.exports = (io) => {
     // Join a classroom room
     socket.on('join-classroom', async ({ classroomId, userId }) => {
       socket.join(classroomId);
-      console.log(`User ${userId} joined classroom ${classroomId}`);
+      console.log(`✅ User ${userId} joined classroom ${classroomId}`);
+      console.log(`📊 Room ${classroomId} now has ${io.sockets.adapter.rooms.get(classroomId)?.size || 0} users`);
       
       // Notify others in the room
       socket.to(classroomId).emit('user-joined', { userId });
+      console.log(`📢 Notified room about user ${userId}`);
     });
 
     // WebRTC Signaling
     socket.on('webrtc-offer', ({ classroomId, offer, userId }) => {
+      console.log(`📤 WebRTC offer from ${userId} to room ${classroomId}`);
       socket.to(classroomId).emit('webrtc-offer', { offer, userId });
     });
 
     socket.on('webrtc-answer', ({ classroomId, answer, userId }) => {
+      console.log(`📤 WebRTC answer from ${userId} to room ${classroomId}`);
       socket.to(classroomId).emit('webrtc-answer', { answer, userId });
     });
 
@@ -28,6 +32,7 @@ module.exports = (io) => {
 
     // Chat messages
     socket.on('send-message', async ({ classroomId, message, senderId }) => {
+      console.log(`💬 Message from ${senderId} in ${classroomId}: ${message}`);
       try {
         // Get current classroom
         const { data: classroom, error } = await supabase
@@ -53,6 +58,7 @@ module.exports = (io) => {
 
           // Broadcast message to all in room
           io.to(classroomId).emit('receive-message', newMessage);
+          console.log(`📢 Broadcasted message to room ${classroomId}`);
         }
       } catch (error) {
         console.error('Error saving chat message:', error);
@@ -61,10 +67,12 @@ module.exports = (io) => {
 
     // Whiteboard drawing
     socket.on('whiteboard-draw', ({ classroomId, drawData }) => {
+      console.log(`🎨 Draw event in room ${classroomId}`);
       socket.to(classroomId).emit('whiteboard-draw', drawData);
     });
 
     socket.on('whiteboard-clear', ({ classroomId }) => {
+      console.log(`🎨 Clear whiteboard in room ${classroomId}`);
       socket.to(classroomId).emit('whiteboard-clear');
     });
 
@@ -79,6 +87,7 @@ module.exports = (io) => {
 
     // Leave classroom
     socket.on('leave-classroom', ({ classroomId, userId }) => {
+      console.log(`👋 User ${userId} leaving classroom ${classroomId}`);
       socket.leave(classroomId);
       socket.to(classroomId).emit('user-left', { userId });
     });

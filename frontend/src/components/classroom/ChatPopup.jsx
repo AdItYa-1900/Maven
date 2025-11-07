@@ -12,9 +12,15 @@ export default function ChatPopup({ socket, classroomId, userId, userName, partn
   const messagesEndRef = useRef(null)
 
   useEffect(() => {
-    if (!socket) return
+    if (!socket) {
+      console.log('💬 Chat: No socket yet')
+      return
+    }
+
+    console.log('💬 Chat: Setting up message listener')
 
     socket.on('receive-message', (message) => {
+      console.log('💬 Received message:', message)
       setMessages(prev => [...prev, message])
       if (!isOpen) {
         setUnreadCount(prev => prev + 1)
@@ -43,7 +49,10 @@ export default function ChatPopup({ socket, classroomId, userId, userName, partn
   const handleSend = (e) => {
     e.preventDefault()
     
-    if (!newMessage.trim() || !socket) return
+    if (!newMessage.trim() || !socket) {
+      console.log('💬 Cannot send:', !newMessage.trim() ? 'empty message' : 'no socket')
+      return
+    }
 
     const message = {
       classroomId,
@@ -53,6 +62,7 @@ export default function ChatPopup({ socket, classroomId, userId, userName, partn
       timestamp: new Date().toISOString()
     }
 
+    console.log('💬 Sending message:', message)
     socket.emit('send-message', message)
     setMessages(prev => [...prev, { ...message, sender_id: userId }])
     setNewMessage('')

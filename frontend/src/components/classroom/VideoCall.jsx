@@ -50,21 +50,24 @@ export default function VideoCall({ socket, classroomId, userId, partnerId, comp
 
   const initializeMedia = async () => {
     try {
+      console.log('🎥 Requesting media access...')
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
         audio: true
       })
       
+      console.log('🎥 Media access granted')
       setLocalStream(stream)
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream
       }
     } catch (error) {
-      console.error('Error accessing media devices:', error)
+      console.error('❌ Error accessing media devices:', error)
     }
   }
 
   const setupWebRTC = () => {
+    console.log('🔗 Setting up WebRTC connection...')
     const configuration = {
       iceServers: [
         { urls: 'stun:stun.l.google.com:19302' }
@@ -73,6 +76,7 @@ export default function VideoCall({ socket, classroomId, userId, partnerId, comp
 
     const pc = new RTCPeerConnection(configuration)
     setPeerConnection(pc)
+    console.log('🔗 Peer connection created')
 
     // Add local stream tracks
     localStream.getTracks().forEach(track => {
@@ -81,6 +85,7 @@ export default function VideoCall({ socket, classroomId, userId, partnerId, comp
 
     // Handle incoming tracks
     pc.ontrack = (event) => {
+      console.log('📡 Received remote track:', event.streams[0].id)
       setRemoteStream(event.streams[0])
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = event.streams[0]
@@ -110,10 +115,13 @@ export default function VideoCall({ socket, classroomId, userId, partnerId, comp
 
     // Socket event handlers
     socket.on('webrtc-offer', async ({ offer, userId: senderId }) => {
+      console.log('📨 Received offer from:', senderId)
       if (senderId !== userId) {
         await pc.setRemoteDescription(new RTCSessionDescription(offer))
+        console.log('✅ Set remote description')
         const answer = await pc.createAnswer()
         await pc.setLocalDescription(answer)
+        console.log('📤 Sending answer')
         socket.emit('webrtc-answer', {
           classroomId,
           answer,
@@ -123,8 +131,10 @@ export default function VideoCall({ socket, classroomId, userId, partnerId, comp
     })
 
     socket.on('webrtc-answer', async ({ answer, userId: senderId }) => {
+      console.log('📨 Received answer from:', senderId)
       if (senderId !== userId) {
         await pc.setRemoteDescription(new RTCSessionDescription(answer))
+        console.log('✅ Set remote description from answer')
       }
     })
 
@@ -140,15 +150,17 @@ export default function VideoCall({ socket, classroomId, userId, partnerId, comp
 
   const createOffer = async (pc) => {
     try {
+      console.log('📤 Creating offer...')
       const offer = await pc.createOffer()
       await pc.setLocalDescription(offer)
+      console.log('📤 Sending offer')
       socket.emit('webrtc-offer', {
         classroomId,
         offer,
         userId
       })
     } catch (error) {
-      console.error('Error creating offer:', error)
+      console.error('❌ Error creating offer:', error)
     }
   }
 
