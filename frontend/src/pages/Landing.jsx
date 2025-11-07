@@ -20,20 +20,20 @@ export default function Landing() {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-gunmetal-900 via-gunmetal-800 to-gunmetal-700">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50">
+      <header className="bg-gunmetal/95 backdrop-blur-sm shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
-                <BookOpen className="w-7 h-7 text-white" />
+              <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary-600 rounded-xl flex items-center justify-center">
+                <BookOpen className="w-7 h-7 text-gunmetal" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold text-primary">
                   Maven
                 </h1>
-                <p className="text-xs text-muted-foreground">Trade a Spark. Make Your Mark</p>
+                <p className="text-xs text-primary-200">Trade a Spark. Make Your Mark</p>
               </div>
             </div>
             <div className="flex gap-2">
@@ -52,20 +52,20 @@ export default function Landing() {
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8">
         <div className="text-center max-w-4xl mx-auto">
-          <div className="inline-flex items-center px-4 py-2 bg-blue-100 rounded-full text-blue-700 text-sm font-medium mb-6">
+          <div className="inline-flex items-center px-4 py-2 bg-primary/20 rounded-full text-primary text-sm font-medium mb-6">
             <Sparkles className="w-4 h-4 mr-2" />
             AI-Powered Peer-to-Peer Learning
           </div>
           
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
             Trade a Spark,
             <br />
-            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <span className="text-primary">
               Make Your Mark
             </span>
           </h1>
           
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
             Trade your expertise, ignite someone's passion. Every skill you share leaves a lasting impact.
             Perfect matches, real-time collaboration, all free.
           </p>
@@ -83,16 +83,16 @@ export default function Landing() {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-8 border-t">
             <div>
-              <div className="text-3xl font-bold text-gray-900">100%</div>
-              <div className="text-sm text-muted-foreground">Free Forever</div>
+              <div className="text-3xl font-bold text-primary">100%</div>
+              <div className="text-sm text-gray-300">Free Forever</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-gray-900">AI</div>
-              <div className="text-sm text-muted-foreground">Smart Matching</div>
+              <div className="text-3xl font-bold text-primary">AI</div>
+              <div className="text-sm text-gray-300">Smart Matching</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-gray-900">P2P</div>
-              <div className="text-sm text-muted-foreground">Direct Learning</div>
+              <div className="text-3xl font-bold text-primary">P2P</div>
+              <div className="text-sm text-gray-300">Direct Learning</div>
             </div>
           </div>
         </div>
@@ -112,8 +112,8 @@ export default function Landing() {
         <div className="grid md:grid-cols-3 gap-8">
           <Card className="border-2 hover:shadow-lg transition-shadow">
             <CardHeader>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                <Users className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mb-4">
+                <Users className="w-6 h-6 text-primary" />
               </div>
               <CardTitle>Smart Matching</CardTitle>
               <CardDescription>
@@ -124,8 +124,8 @@ export default function Landing() {
 
           <Card className="border-2 hover:shadow-lg transition-shadow">
             <CardHeader>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                <Video className="w-6 h-6 text-green-600" />
+              <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mb-4">
+                <Video className="w-6 h-6 text-primary" />
               </div>
               <CardTitle>Video Classroom</CardTitle>
               <CardDescription>
@@ -136,8 +136,8 @@ export default function Landing() {
 
           <Card className="border-2 hover:shadow-lg transition-shadow">
             <CardHeader>
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-                <Palette className="w-6 h-6 text-purple-600" />
+              <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mb-4">
+                <Palette className="w-6 h-6 text-primary" />
               </div>
               <CardTitle>Collaborative Whiteboard</CardTitle>
               <CardDescription>
@@ -148,8 +148,8 @@ export default function Landing() {
 
           <Card className="border-2 hover:shadow-lg transition-shadow">
             <CardHeader>
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
-                <MessageSquare className="w-6 h-6 text-orange-600" />
+              <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mb-4">
+                <MessageSquare className="w-6 h-6 text-primary" />
               </div>
               <CardTitle>Persistent Chat</CardTitle>
               <CardDescription>
@@ -160,8 +160,8 @@ export default function Landing() {
 
           <Card className="border-2 hover:shadow-lg transition-shadow">
             <CardHeader>
-              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
-                <Star className="w-6 h-6 text-yellow-600" />
+              <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mb-4">
+                <Star className="w-6 h-6 text-primary" />
               </div>
               <CardTitle>Trust Score System</CardTitle>
               <CardDescription>
@@ -172,8 +172,8 @@ export default function Landing() {
 
           <Card className="border-2 hover:shadow-lg transition-shadow">
             <CardHeader>
-              <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
-                <Globe className="w-6 h-6 text-red-600" />
+              <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mb-4">
+                <Globe className="w-6 h-6 text-primary" />
               </div>
               <CardTitle>Global Community</CardTitle>
               <CardDescription>
@@ -185,7 +185,7 @@ export default function Landing() {
       </section>
 
       {/* How It Works */}
-      <section className="bg-white py-20">
+      <section className="bg-gunmetal-800 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -201,7 +201,7 @@ export default function Landing() {
               <div className="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
                 1
               </div>
-              <h3 className="text-xl font-semibold mb-2">Create Profile</h3>
+              <h3 className="text-xl font-semibold mb-2 text-white">Create Profile</h3>
               <p className="text-gray-600">
                 Tell us what you can teach and what you want to learn
               </p>
@@ -244,15 +244,15 @@ export default function Landing() {
       <section className="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">
+            <h2 className="text-4xl font-bold text-white mb-6">
               Why Choose Maven?
             </h2>
             <div className="space-y-4">
               <div className="flex gap-3">
                 <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0" />
                 <div>
-                  <h3 className="font-semibold mb-1">100% Free</h3>
-                  <p className="text-gray-600">No subscription fees, no hidden costs. Exchange skills freely.</p>
+                  <h3 className="font-semibold mb-1 text-white">100% Free</h3>
+                  <p className="text-gray-300">No subscription fees, no hidden costs. Exchange skills freely.</p>
                 </div>
               </div>
               <div className="flex gap-3">
@@ -287,30 +287,30 @@ export default function Landing() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+            <Card className="bg-gradient-to-br from-primary/10 to-primary/20 border-primary/30">
               <CardContent className="pt-6">
-                <TrendingUp className="w-8 h-8 text-blue-600 mb-3" />
-                <div className="text-3xl font-bold text-gray-900 mb-1">∞</div>
-                <div className="text-sm text-gray-600">Skills Available</div>
+                <TrendingUp className="w-8 h-8 text-primary mb-3" />
+                <div className="text-3xl font-bold text-white mb-1">∞</div>
+                <div className="text-sm text-gray-300">Skills Available</div>
               </CardContent>
             </Card>
-            <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+            <Card className="bg-gradient-to-br from-primary/10 to-primary/20 border-primary/30">
               <CardContent className="pt-6">
-                <Users className="w-8 h-8 text-green-600 mb-3" />
+                <Users className="w-8 h-8 text-primary mb-3" />
                 <div className="text-3xl font-bold text-gray-900 mb-1">1:1</div>
                 <div className="text-sm text-gray-600">Personal Attention</div>
               </CardContent>
             </Card>
-            <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+            <Card className="bg-gradient-to-br from-primary/10 to-primary/20 border-primary/30">
               <CardContent className="pt-6">
-                <Clock className="w-8 h-8 text-purple-600 mb-3" />
+                <Clock className="w-8 h-8 text-primary mb-3" />
                 <div className="text-3xl font-bold text-gray-900 mb-1">24/7</div>
                 <div className="text-sm text-gray-600">Find Partners Anytime</div>
               </CardContent>
             </Card>
-            <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+            <Card className="bg-gradient-to-br from-primary/10 to-primary/20 border-primary/30">
               <CardContent className="pt-6">
-                <Star className="w-8 h-8 text-orange-600 mb-3" />
+                <Star className="w-8 h-8 text-primary mb-3" />
                 <div className="text-3xl font-bold text-gray-900 mb-1">5★</div>
                 <div className="text-sm text-gray-600">Quality Exchanges</div>
               </CardContent>
@@ -320,12 +320,12 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-indigo-600 py-20">
+      <section className="bg-gradient-to-r from-gunmetal to-gunmetal-800 py-20">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold text-white mb-6">
             Ready to Trade Your Spark?
           </h2>
-          <p className="text-xl text-blue-100 mb-8">
+          <p className="text-xl text-primary-100 mb-8">
             Share your expertise, learn something new, and leave your mark
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -342,7 +342,7 @@ export default function Landing() {
               size="lg" 
               variant="outline"
               onClick={() => navigate('/login')}
-              className="text-lg px-8 py-6 bg-white/10 text-white border-white hover:bg-white/20"
+              className="text-lg px-8 py-6 bg-primary/10 text-primary border-primary hover:bg-primary/20"
             >
               Sign In
             </Button>
@@ -351,7 +351,7 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      <footer className="bg-gunmetal text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
@@ -359,7 +359,7 @@ export default function Landing() {
                 <BookOpen className="w-6 h-6" />
                 <span className="font-bold text-lg">Maven</span>
               </div>
-              <p className="text-gray-400 text-sm">
+              <p className="text-primary-200 text-sm">
                 Connecting learners worldwide through peer-to-peer skill exchange.
               </p>
             </div>
@@ -388,7 +388,7 @@ export default function Landing() {
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
+          <div className="border-t border-primary/20 mt-8 pt-8 text-center text-sm text-primary-200">
             <p>&copy; 2024 Skill Exchange Platform. All rights reserved.</p>
           </div>
         </div>

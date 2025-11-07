@@ -103,7 +103,7 @@ export default function Classroom() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gray-100">
+    <div className="min-h-screen bg-background flex flex-col bg-gray-100">
       {/* Header */}
       <header className="bg-white shadow-sm px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4">

@@ -65,16 +65,16 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="inline-block">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-full mb-4 hover:scale-110 transition-transform">
-              <BookOpen className="w-8 h-8 text-white" />
+              <BookOpen className="w-8 h-8 text-primary-foreground" />
             </div>
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Maven</h1>
-          <p className="text-gray-600 mt-2">Start your learning journey today</p>
+          <h1 className="text-3xl font-bold text-foreground">Maven</h1>
+          <p className="text-muted-foreground mt-2">Start your learning journey today</p>
         </div>
 
         <Card>
