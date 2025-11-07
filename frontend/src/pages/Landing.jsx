@@ -33,7 +33,7 @@ export default function Landing() {
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                   Maven
                 </h1>
-                <p className="text-xs text-muted-foreground">Learn by Teaching</p>
+                <p className="text-xs text-muted-foreground">Trade a Spark. Make Your Mark</p>
               </div>
             </div>
             <div className="flex gap-2">
@@ -58,15 +58,15 @@ export default function Landing() {
           </div>
           
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            Exchange Skills,
+            Trade a Spark,
             <br />
             <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Grow Together
+              Make Your Mark
             </span>
           </h1>
           
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Connect with people who want to learn what you teach, and teach what you want to learn. 
+            Trade your expertise, ignite someone's passion. Every skill you share leaves a lasting impact.
             Perfect matches, real-time collaboration, all free.
           </p>
 
@@ -323,10 +323,10 @@ export default function Landing() {
       <section className="bg-gradient-to-r from-blue-600 to-indigo-600 py-20">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold text-white mb-6">
-            Ready to Start Your Learning Journey?
+            Ready to Trade Your Spark?
           </h2>
           <p className="text-xl text-blue-100 mb-8">
-            Join thousands of learners exchanging skills and growing together
+            Share your expertise, learn something new, and leave your mark
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 

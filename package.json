@@ -1,7 +1,7 @@
 {
   "name": "maven-platform",
   "version": "1.0.0",
-  "description": "Maven - Peer-to-Peer Skill Exchange Platform",
+  "description": "Maven - Trade a Spark. Make Your Mark",
   "scripts": {
     "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",

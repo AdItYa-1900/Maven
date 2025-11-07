@@ -1,7 +1,7 @@
 {
   "name": "maven-backend",
   "version": "1.0.0",
-  "description": "Backend API for Maven Platform",
+  "description": "Backend API for Maven - Trade a Spark. Make Your Mark",
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",

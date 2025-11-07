@@ -1,6 +1,8 @@
-# 🎓 Maven - Peer-to-Peer Skill Exchange Platform
+# 🎓 Maven - Trade a Spark. Make Your Mark
 
 Maven is a complete MVP platform for connecting people who want to teach and learn skills from each other. Built with React, Node.js, Socket.IO, and WebRTC.
+
+**Tagline:** Trade a Spark. Make Your Mark
 
 ## ✨ Features
 
