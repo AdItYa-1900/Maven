@@ -34,7 +34,10 @@ export default function Classroom() {
   useEffect(() => {
     if (classroom && user) {
       console.log('🔌 Connecting to socket...')
-      const newSocket = io(import.meta.env.VITE_API_URL || 'http://localhost:5001', {
+      // Socket.IO must connect directly to backend, not through Vite proxy
+      const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5001'
+      console.log('🔌 Socket URL:', socketUrl)
+      const newSocket = io(socketUrl, {
         transports: ['websocket', 'polling']
       })
       
