@@ -126,7 +126,14 @@ const createClassroom = async (classroomData) => {
 const findClassroomByMatchId = async (matchId) => {
   const { data, error } = await supabase
     .from('classrooms')
-    .select('*')
+    .select(`
+      *,
+      match:match_id(
+        *,
+        user1:user1_id(*),
+        user2:user2_id(*)
+      )
+    `)
     .eq('match_id', matchId)
     .single();
   

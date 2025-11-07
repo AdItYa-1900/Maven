@@ -36,14 +36,14 @@ export default function Classroom() {
       setSocket(newSocket)
 
       newSocket.emit('join-classroom', {
-        classroomId: classroom._id,
-        userId: user._id
+        classroomId: classroom.id,
+        userId: user.id
       })
 
       return () => {
         newSocket.emit('leave-classroom', {
-          classroomId: classroom._id,
-          userId: user._id
+          classroomId: classroom.id,
+          userId: user.id
         })
         newSocket.disconnect()
       }
@@ -56,12 +56,12 @@ export default function Classroom() {
       setClassroom(response.data)
       
       // Determine partner
-      const match = response.data.match_id
-      const partnerUser = match.user1_id._id === user._id ? match.user2_id : match.user1_id
+      const match = response.data.match
+      const partnerUser = match.user1.id === user.id ? match.user2 : match.user1
       setPartner(partnerUser)
 
       // Start session
-      await startSession(response.data._id)
+      await startSession(matchId)
     } catch (error) {
       toast({
         title: 'Error',
@@ -76,7 +76,7 @@ export default function Classroom() {
 
   const handleEndSession = async () => {
     try {
-      await endSession(classroom._id)
+      await endSession(matchId)
       setShowReviewModal(true)
     } catch (error) {
       toast({
@@ -152,24 +152,24 @@ export default function Classroom() {
         {activeTab === 'video' && (
           <VideoCall
             socket={socket}
-            classroomId={classroom._id}
-            userId={user._id}
-            partnerId={partner?._id}
+            classroomId={classroom.id}
+            userId={user.id}
+            partnerId={partner?.id}
           />
         )}
         
         {activeTab === 'whiteboard' && (
           <Whiteboard
             socket={socket}
-            classroomId={classroom._id}
+            classroomId={classroom.id}
           />
         )}
         
         {activeTab === 'chat' && (
           <Chat
             socket={socket}
-            classroomId={classroom._id}
-            userId={user._id}
+            classroomId={classroom.id}
+            userId={user.id}
             userName={user.name}
           />
         )}
@@ -179,7 +179,7 @@ export default function Classroom() {
       {showReviewModal && (
         <ReviewModal
           matchId={matchId}
-          partnerId={partner?._id}
+          partnerId={partner?.id}
           partnerName={partner?.name}
           onComplete={handleReviewComplete}
         />

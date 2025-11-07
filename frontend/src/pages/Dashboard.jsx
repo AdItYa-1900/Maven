@@ -55,9 +55,10 @@ export default function Dashboard() {
       })
       loadMatches()
     } catch (error) {
+      console.error('Accept match error:', error)
       toast({
         title: 'Error',
-        description: 'Failed to accept match',
+        description: error.response?.data?.error || error.message || 'Failed to accept match',
         variant: 'destructive'
       })
     }
@@ -72,24 +73,25 @@ export default function Dashboard() {
       })
       loadMatches()
     } catch (error) {
+      console.error('Decline match error:', error)
       toast({
         title: 'Error',
-        description: 'Failed to decline match',
+        description: error.response?.data?.error || error.message || 'Failed to decline match',
         variant: 'destructive'
       })
     }
   }
 
   const getPartner = (match) => {
-    return match.user1_id._id === user._id ? match.user2_id : match.user1_id
+    return match.user1.id === user.id ? match.user2 : match.user1
   }
 
   const hasAccepted = (match) => {
-    return match.user1_id._id === user._id ? match.user1_accepted : match.user2_accepted
+    return match.user1.id === user.id ? match.user1_accepted : match.user2_accepted
   }
 
   const partnerAccepted = (match) => {
-    return match.user1_id._id === user._id ? match.user2_accepted : match.user1_accepted
+    return match.user1.id === user.id ? match.user2_accepted : match.user1_accepted
   }
 
   const pendingMatches = matches.filter(m => m.status === 'pending')
@@ -168,7 +170,7 @@ export default function Dashboard() {
               {activeMatches.map((match) => {
                 const partner = getPartner(match)
                 return (
-                  <Card key={match._id} className="border-primary">
+                  <Card key={match.id} className="border-primary">
                     <CardContent className="pt-6">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
@@ -189,7 +191,7 @@ export default function Dashboard() {
                             </div>
                           </div>
                         </div>
-                        <Button onClick={() => navigate(`/classroom/${match._id}`)}>
+                        <Button onClick={() => navigate(`/classroom/${match.id}`)}>
                           <Video className="w-4 h-4 mr-2" />
                           Join Classroom
                         </Button>
@@ -216,7 +218,7 @@ export default function Dashboard() {
                 const otherAccepted = partnerAccepted(match)
 
                 return (
-                  <Card key={match._id}>
+                  <Card key={match.id}>
                     <CardContent className="pt-6">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4 flex-1">
@@ -263,11 +265,11 @@ export default function Dashboard() {
                         
                         {!userAccepted && (
                           <div className="flex gap-2">
-                            <Button onClick={() => handleAccept(match._id)} variant="default">
+                            <Button onClick={() => handleAccept(match.id)} variant="default">
                               <Check className="w-4 h-4 mr-2" />
                               Accept
                             </Button>
-                            <Button onClick={() => handleDecline(match._id)} variant="outline">
+                            <Button onClick={() => handleDecline(match.id)} variant="outline">
                               <X className="w-4 h-4 mr-2" />
                               Decline
                             </Button>

@@ -25,16 +25,23 @@ router.post('/:matchId/accept', authMiddleware, async (req, res) => {
     const { data: match, error: matchError } = await findMatchById(req.params.matchId);
 
     if (matchError || !match) {
+      console.error('Match not found:', matchError);
       return res.status(404).json({ error: 'Match not found' });
     }
+
+    console.log('Accept match - User ID:', req.userId);
+    console.log('Match user1_id:', match.user1_id, 'user2_id:', match.user2_id);
 
     // Check if user is part of the match
     const isUser1 = match.user1_id === req.userId;
     const isUser2 = match.user2_id === req.userId;
 
     if (!isUser1 && !isUser2) {
+      console.error('Authorization failed - User not part of match');
       return res.status(403).json({ error: 'Not authorized' });
     }
+
+    console.log('User is:', isUser1 ? 'user1' : 'user2');
 
     // Update acceptance status
     const updates = {};
@@ -71,7 +78,7 @@ router.post('/:matchId/accept', authMiddleware, async (req, res) => {
     });
   } catch (error) {
     console.error('Error accepting match:', error);
-    res.status(500).json({ error: 'Error accepting match' });
+    res.status(500).json({ error: 'Error accepting match', details: error.message });
   }
 });
 
@@ -81,14 +88,19 @@ router.post('/:matchId/decline', authMiddleware, async (req, res) => {
     const { data: match, error: matchError } = await findMatchById(req.params.matchId);
 
     if (matchError || !match) {
+      console.error('Match not found:', matchError);
       return res.status(404).json({ error: 'Match not found' });
     }
+
+    console.log('Decline match - User ID:', req.userId);
+    console.log('Match user1_id:', match.user1_id, 'user2_id:', match.user2_id);
 
     // Check if user is part of the match
     const isUser1 = match.user1_id === req.userId;
     const isUser2 = match.user2_id === req.userId;
 
     if (!isUser1 && !isUser2) {
+      console.error('Authorization failed - User not part of match');
       return res.status(403).json({ error: 'Not authorized' });
     }
 
@@ -97,7 +109,7 @@ router.post('/:matchId/decline', authMiddleware, async (req, res) => {
     res.json({ message: 'Match declined' });
   } catch (error) {
     console.error('Error declining match:', error);
-    res.status(500).json({ error: 'Error declining match' });
+    res.status(500).json({ error: 'Error declining match', details: error.message });
   }
 });
 
